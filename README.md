@@ -14,21 +14,6 @@ _Em construção._
 ## Banco de Dados
 Em contrução 
 
-## Endpoints
-
-### POST /messages
-
-### GET /messages/:messageId
-
-### GET /messages?phone=
-
-### PATCH /messages/:messageId
-
-### DELETE /messages/:messageId
-
-## Exemplos
-
-## Testes
 
 ## Decisões
 _Em construção._
