@@ -2,11 +2,33 @@
 
 API de mensagens para a Lia, assistente de vendas no WhatsApp.
 
+## Sobre o projeto
+Em construção 
+
 ## Como instalar e rodar
 _Em construção._
 
 ## Como usar
 _Em construção._
+
+## Banco de Dados
+Em contrução 
+
+## Endpoints
+
+### POST /messages
+
+### GET /messages/:messageId
+
+### GET /messages?phone=
+
+### PATCH /messages/:messageId
+
+### DELETE /messages/:messageId
+
+## Exemplos
+
+## Testes
 
 ## Decisões
 _Em construção._
