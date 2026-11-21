@@ -6,7 +6,13 @@ API de mensagens para a Lia, assistente de vendas no WhatsApp.
 Em construção 
 
 ## Como instalar e rodar
-_Em construção._
+
+Requisitos: Node.js 22+ e npm.
+
+    npm install
+    npm run dev
+
+A API sobe em http://localhost:3000. Verifique com `curl http://localhost:3000/health`._
 
 ## Como usar
 _Em construção._
