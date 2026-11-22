@@ -25,7 +25,7 @@ export const listMessagesQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
-export const updateMessageSchema = z.object({
+export const updateMessageSchema = z.strictObject({
   text: z.string().min(1).max(4096),
 });
 
