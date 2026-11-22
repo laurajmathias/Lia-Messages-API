@@ -59,4 +59,17 @@ export async function updateMessage(messageId: string, { text }: UpdateMessageIn
       }
       throw error;
     }
+    
 } 
+
+export async function deleteMessage(messageId: string) {
+  try {
+    await prisma.message.delete({ where: { messageId } });
+  } catch (error) {
+    // P2025 = o registro a apagar não existe.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      throw new AppError(404, "MESSAGE_NOT_FOUND", `Mensagem "${messageId}" não encontrada`);
+    }
+    throw error;
+  }
+}

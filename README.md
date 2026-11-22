@@ -64,6 +64,14 @@ Resposta `200 OK`, com as mensagens em ordem cronológica:
 
 Sem `phone`, ou com parâmetros inválidos, a resposta é `400 VALIDATION_ERROR`.
 
+### Apagar uma mensagem: `DELETE /messages/:messageId`
+
+```bash
+curl -i -X DELETE http://localhost:3000/messages/wamid.HBgM125
+```
+
+Resposta `204 No Content`, sem corpo. Um `messageId` inexistente resulta em `404 MESSAGE_NOT_FOUND`, inclusive se a mesma mensagem for apagada duas vezes.
+
 ## Banco de Dados
 
 O MySQL 8.4 roda em um container Docker, definido no `docker-compose.yml`. Os dados ficam em um volume (`mysql_data`) e sobrevivem a um `npm run db:down`.
@@ -78,6 +86,9 @@ _Em construção._
 - **`404` para mensagem inexistente**, no mesmo formato de erro das outras rotas.
 - **`PATCH` aceita só o `text`**: os demais campos descrevem a origem da mensagem (loja, cliente, horário de envio) e não devem ser alterados. O corpo é validado em modo estrito, então campos extras são recusados em vez de ignorados em silêncio.
 - **`updatedAt` automático**: o Prisma atualiza esse campo a cada edição, e assim fica registrado quando a mensagem foi alterada.
+- **`DELETE` responde `204` sem corpo**: é o padrão para exclusões bem-sucedidas, e não há o que devolver.
+- **`404` ao apagar uma mensagem que já não existe**: assim quem chama a API sabe que nada foi apagado, em vez de receber um sucesso enganoso.
+- **Exclusão definitiva (hard delete)**: a linha é removida do banco. Para o escopo do teste basta, e em um sistema real eu consideraria uma exclusão lógica (soft delete), registrando a data da exclusão.
 
 ## O que eu faria com mais tempo
 _Em construção._

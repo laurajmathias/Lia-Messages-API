@@ -4,8 +4,9 @@ import {
   listMessagesQuerySchema,
   messageIdParamSchema,
   updateMessageSchema,
+
 } from "./message.schema.js";
-import { createMessage, getMessage, listMessages, updateMessage } from "./message.service.js";
+import { createMessage, deleteMessage, getMessage, listMessages, updateMessage} from "./message.service.js";
 
 
 export const messagesRouter = Router();
@@ -30,4 +31,10 @@ messagesRouter.patch("/:messageId", async (req, res) => {
   const { messageId } = messageIdParamSchema.parse(req.params);
   const input = updateMessageSchema.parse(req.body);
   res.json(await updateMessage(messageId, input));
+});
+
+messagesRouter.delete("/:messageId", async (req, res) => {
+  const { messageId } = messageIdParamSchema.parse(req.params);
+  await deleteMessage(messageId);
+  res.status(204).send();
 });
