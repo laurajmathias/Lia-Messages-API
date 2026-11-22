@@ -1,4 +1,6 @@
 import express from "express";
+import { errorHandler, notFoundHandler } from "./middlewares/error-handler.js";
+import { messagesRouter } from "./modules/messages/message.routes.js";
 
 export function createApp() {
   const app = express();
@@ -8,6 +10,11 @@ export function createApp() {
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  app.use("/messages", messagesRouter);
+
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   return app;
 }
