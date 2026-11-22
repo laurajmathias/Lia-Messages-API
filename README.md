@@ -78,6 +78,10 @@ O MySQL 8.4 roda em um container Docker, definido no `docker-compose.yml`. Os da
 
 O banco fica exposto na porta **3307** (e não na 3306) para não conflitar com um MySQL já instalado na máquina. As credenciais de desenvolvimento estão em `.env.example`.
 
+Há também o banco `lia_messages_test`, usado apenas pelos testes automatizados. Ele é criado automaticamente na primeira vez que o container sobe (script em `docker/mysql-init`). Se o volume do MySQL já existia antes, crie-o uma vez com:
+
+    docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS lia_messages_test;"
+
 ## Decisões
 _Em construção._
 - **`phone` obrigatório na listagem**: a API lista as mensagens de um cliente. Listar tudo exporia dados de todos os clientes e cresceria sem limite.
