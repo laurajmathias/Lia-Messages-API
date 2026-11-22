@@ -1,7 +1,8 @@
 import { AppError } from "../../errors/app-error.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
-import type { CreateMessageInput, ListMessagesQuery } from "./message.schema.js";
+import type { CreateMessageInput, ListMessagesQuery, UpdateMessageInput } from "./message.schema.js";
+
 
 export async function createMessage(input: CreateMessageInput) {
   try {
@@ -45,3 +46,17 @@ export async function listMessages({ phone, storeId, limit, offset }: ListMessag
 
   return { data, pagination: { limit, offset, total } };
 }
+
+export async function updateMessage(messageId: string, { text }: UpdateMessageInput) {
+    try {
+       return await prisma.message.update({
+        where: { messageId },
+        data: { text },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+        throw new AppError(404, "MESSAGE_NOT_FOUND", `Mensagem "${messageId}" não encontrada`);
+      }
+      throw error;
+    }
+} 

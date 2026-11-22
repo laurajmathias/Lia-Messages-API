@@ -25,5 +25,11 @@ export const listMessagesQuerySchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
+export const updateMessageSchema = z.object({
+  text: z.string().min(1).max(4096),
+});
+
+
 export type CreateMessageInput = z.infer<typeof createMessageSchema>;
 export type ListMessagesQuery = z.infer<typeof listMessagesQuerySchema>;
+export type UpdateMessageInput = z.infer<typeof updateMessageSchema>;
