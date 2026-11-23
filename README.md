@@ -3,7 +3,32 @@
 API de mensagens para a Lia, assistente de vendas no WhatsApp.
 
 ## Sobre o projeto
-_Em construção._
+A Lia é uma assistente de vendas que conversa com clientes pelo WhatsApp. Para isso, as mensagens dos clientes precisam ser recebidas e guardadas. Esta API faz esse trabalho: recebe, lê, edita e apaga mensagens (um CRUD).
+
+Tecnologias usadas:
+
+- Node.js 22 e TypeScript
+- Express 5 (servidor HTTP)
+- MySQL 8.4, rodando em Docker
+- Prisma 7 (acesso ao banco e migrations)
+- Zod (validação dos dados)
+- Vitest e Supertest (testes)
+
+### Estrutura de pastas
+
+```
+src/
+  app.ts                   monta o app Express (rotas e tratamento de erros)
+  server.ts                abre a porta e inicia o servidor
+  errors/                  erro padronizado da aplicação (AppError)
+  lib/prisma.ts            conexão com o banco
+  middlewares/             tratador de erros e de rota não encontrada
+  modules/messages/        rotas, validação (schema) e regras (service) das mensagens
+prisma/                    schema do banco e migrations
+tests/                     testes de integração
+docker/mysql-init/         script que cria o banco de teste
+docker-compose.yml         sobe o MySQL
+```
 
 ## Como instalar e rodar
 
@@ -17,6 +42,18 @@ Requisitos: Node.js 22+, npm e Docker (com Docker Compose).
 A API sobe em http://localhost:3000. Verifique com `curl http://localhost:3000/health`.
 
 Para parar o banco: `npm run db:down`.
+
+### Scripts disponíveis
+
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Sobe a API em modo desenvolvimento, recarregando ao salvar |
+| `npm run build` | Compila o TypeScript para a pasta `dist` |
+| `npm start` | Roda a versão compilada (use depois do `build`) |
+| `npm test` | Roda os testes automatizados |
+| `npm run db:up` | Sobe o MySQL no Docker |
+| `npm run db:down` | Para o MySQL |
+| `npm run prisma:migrate` | Cria e aplica uma nova migration (uso em desenvolvimento) | 
 
 ## Como usar
 
@@ -95,7 +132,7 @@ As migrations são aplicadas no banco de teste automaticamente antes da execuç�
 
 
 ## Decisões
-_Em construção._
+
 - **`phone` obrigatório na listagem**: a API lista as mensagens de um cliente. Listar tudo exporia dados de todos os clientes e cresceria sem limite.
 - **Paginação com `limit` e `offset`** (padrão 50, máximo 100): respostas de tamanho previsível, e o `total` diz ao cliente se há mais páginas.
 - **Ordem cronológica, da mais antiga para a mais nova**: é a ordem natural de uma conversa, com desempate pelo `messageId` para o resultado ser sempre o mesmo.
@@ -110,4 +147,26 @@ _Em construção._
 - **`app.ts` separado de `server.ts`**: permite testar a API com Supertest sem abrir uma porta.
 
 ## O que eu faria com mais tempo
-_Em construção._
+Realizei este projeto como uma task para um teste técnico, que envolveu estudar algumas tecnologias de maneira rápida, visando entregar o que foi requisitado efetivamente. No entanto, ainda há outras coisas que poderiam ser desenvolvidas num período de tempo mais longo. Essas coisas estão listadas abaixo, mais ou menos nessa ordem: 
+
+**1. Proteger a API.** Hoje qualquer pessoa que consiga chamar a API pode criar, ler, editar e apagar mensagens, porque não existe nenhuma autenticação. Eu ainda não estudei isso a fundo, mas gostaria de aprender como garantir que quem envia as mensagens é mesmo o WhatsApp, e como limitar quem pode consultá-las.
+
+**2. Pensar melhor no caso da mensagem repetida.** Quando a mesma mensagem chega duas vezes, a API responde `409`. Isso protege o banco, mas tenho dúvida se é a melhor resposta para um serviço que recebe eventos do WhatsApp: se ele tentar enviar de novo por causa do erro, talvez fosse melhor responder `200` ("já recebi"). Eu pesquisaria como o WhatsApp lida com isso antes de decidir.
+
+**3. Cuidar do banco como em produção.** Usei o usuário `root` com a senha `root` e uma opção de conexão (`allowPublicKeyRetrieval`) que só é aceitável em desenvolvimento local. Em um ambiente real eu criaria um usuário com permissões limitadas, usaria conexão com TLS e guardaria as senhas fora do código.
+
+**4. Melhorar as mensagens de erro.** As mensagens que vêm do Zod estão em inglês, e quando alguém manda um campo que não existe no `PATCH` o campo `field` da resposta vem vazio. Eu traduziria e padronizaria tudo em português.
+
+**5. Organizar o código repetido.** O trecho que transforma o erro `P2025` do Prisma em `404` aparece no `PATCH` e no `DELETE`. Eu extrairia uma função para não repetir.
+
+**6. Usar paginação por cursor.** Hoje a listagem usa `limit` e `offset`, que é mais simples, mas fica lenta quando há muitas mensagens. Eu estudaria a paginação por cursor.
+
+**7. Guardar mensagens apagadas.** O `DELETE` apaga a linha de vez. Em um sistema real eu faria uma exclusão lógica, só marcando a mensagem como apagada e registrando quando.
+
+**8. Melhorar o `/health`.** Hoje ele só diz que o servidor está de pé, e não verifica se o banco responde.
+
+**9. Automatizar e empacotar.** Colocaria os testes para rodar sozinhos a cada push (GitHub Actions) e criaria um Dockerfile para a própria API, para subir tudo com um comando só. Hoje só o banco roda em Docker.
+
+**10. Documentar e acompanhar a API.** Adicionaria uma documentação interativa (Swagger/OpenAPI) e logs mais úteis. 
+
+
