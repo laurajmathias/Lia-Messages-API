@@ -32,14 +32,42 @@ docker-compose.yml         sobe o MySQL
 
 ## Como instalar e rodar
 
+## Como instalar e rodar
+
 Requisitos: Node.js 22+, npm e Docker (com Docker Compose).
 
-    cp .env.example .env
-    npm install
-    npm run db:up
-    npm run dev
+**1. Criar o arquivo de configuração.** O `.env` guarda as configurações locais e não vai para o GitHub, então precisa ser criado a partir do exemplo:
 
-A API sobe em http://localhost:3000. Verifique com `curl http://localhost:3000/health`.
+```bash
+cp .env.example .env
+```
+
+**2. Instalar as dependências:**
+
+```bash
+npm install
+```
+
+**3. Subir o banco de dados** e esperar ele ficar pronto (a coluna `STATUS` deve mostrar `healthy`; na primeira vez leva uns 30 segundos):
+
+```bash
+npm run db:up
+docker compose ps
+```
+
+**4. Criar a tabela de mensagens** (só depois que o banco estiver `healthy`):
+
+```bash
+npx prisma migrate deploy
+```
+
+**5. Rodar a API:**
+
+```bash
+npm run dev
+```
+
+A API sobe em http://localhost:3000. Para verificar, use `curl http://localhost:3000/health`, que deve responder `{"status":"ok"}`.
 
 Para parar o banco: `npm run db:down`.
 
