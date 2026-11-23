@@ -82,6 +82,18 @@ Há também o banco `lia_messages_test`, usado apenas pelos testes automatizados
 
     docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS lia_messages_test;"
 
+## Testes
+
+Os testes são de integração: usam a aplicação Express em memória (Supertest) e um MySQL de verdade, no banco separado `lia_messages_test`, sem tocar nos dados de desenvolvimento.
+
+```bash
+npm run db:up
+npm test
+```
+
+As migrations são aplicadas no banco de teste automaticamente antes da execução, e cada teste começa com a tabela vazia. Há também uma trava que aborta os testes se a conexão não apontar para o banco de teste. 
+
+
 ## Decisões
 _Em construção._
 - **`phone` obrigatório na listagem**: a API lista as mensagens de um cliente. Listar tudo exporia dados de todos os clientes e cresceria sem limite.
@@ -93,6 +105,9 @@ _Em construção._
 - **`DELETE` responde `204` sem corpo**: é o padrão para exclusões bem-sucedidas, e não há o que devolver.
 - **`404` ao apagar uma mensagem que já não existe**: assim quem chama a API sabe que nada foi apagado, em vez de receber um sucesso enganoso.
 - **Exclusão definitiva (hard delete)**: a linha é removida do banco. Para o escopo do teste basta, e em um sistema real eu consideraria uma exclusão lógica (soft delete), registrando a data da exclusão.
+- **Testes de integração com banco real, em vez de mocks**: o que mais pode quebrar é a combinação entre API, Prisma e MySQL (chave única, ordenação, erros do Prisma). Um banco falso não pegaria esses problemas.
+- **Banco de teste separado e trava de segurança**: cada teste apaga as mensagens antes de rodar, então os testes recusam rodar se a conexão não for a do `lia_messages_test`.
+- **`app.ts` separado de `server.ts`**: permite testar a API com Supertest sem abrir uma porta.
 
 ## O que eu faria com mais tempo
 _Em construção._

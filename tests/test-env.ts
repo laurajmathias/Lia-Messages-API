@@ -1,0 +1,1 @@
+export const TEST_DATABASE_URL = "mysql://root:root@localhost:3307/lia_messages_test";
