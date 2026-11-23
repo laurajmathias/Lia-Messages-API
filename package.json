@@ -3,19 +3,18 @@
   "version": "1.0.0",
   "description": "API de mensagens para a Lia, assistente de vendas no WhatsApp.",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "db:up": "docker compose up -d",
-    "db:down": "docker compose down",
-    "postinstall": "prisma generate",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev", 
-    "test": "vitest run", 
-    "test.watch": "vitest"
-  },
+ "scripts": {
+  "dev": "tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "db:up": "docker compose up -d",
+  "db:down": "docker compose down",
+  "postinstall": "prisma generate",
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate dev",
+  "test": "vitest run",
+  "test:watch": "vitest"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/laurajmathias/Lia-Messages-API.git"
