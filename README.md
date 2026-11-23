@@ -55,7 +55,6 @@ Para parar o banco: `npm run db:down`.
 | `npm run db:down` | Para o MySQL |
 | `npm run prisma:migrate` | Cria e aplica uma nova migration (uso em desenvolvimento) | 
 
-## Como usar
 
 ### Editar o texto de uma mensagem: `PATCH /messages/:messageId`
 
