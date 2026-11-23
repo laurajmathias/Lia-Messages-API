@@ -32,8 +32,6 @@ docker-compose.yml         sobe o MySQL
 
 ## Como instalar e rodar
 
-## Como instalar e rodar
-
 Requisitos: Node.js 22+, npm e Docker (com Docker Compose).
 
 **1. Criar o arquivo de configuração.** O `.env` guarda as configurações locais e não vai para o GitHub, então precisa ser criado a partir do exemplo:
@@ -83,6 +81,43 @@ Para parar o banco: `npm run db:down`.
 | `npm run db:down` | Para o MySQL |
 | `npm run prisma:migrate` | Cria e aplica uma nova migration (uso em desenvolvimento) | 
 
+## Como usar
+
+### Criar uma mensagem: `POST /messages`
+
+```bash
+curl -i -X POST http://localhost:3000/messages \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messageId": "wamid.HBgM123",
+    "storeId": "loja-42",
+    "phone": "5511999998888",
+    "text": "vocês têm tênis preto tamanho 42?",
+    "timestamp": "2026-11-05T14:32:10Z"
+  }'
+```
+
+Resposta `201 Created`:
+
+```json
+{
+  "messageId": "wamid.HBgM123",
+  "storeId": "loja-42",
+  "phone": "5511999998888",
+  "text": "vocês têm tênis preto tamanho 42?",
+  "timestamp": "2026-11-05T14:32:10.000Z",
+  "createdAt": "2026-11-21T15:00:00.000Z",
+  "updatedAt": "2026-11-21T15:00:00.000Z"
+}
+```
+
+Erros possíveis:
+
+- `400 VALIDATION_ERROR`: algum campo inválido (a resposta lista quais).
+- `400 INVALID_JSON`: corpo que não é JSON.
+- `409 MESSAGE_ALREADY_EXISTS`: já existe mensagem com esse `messageId`.
+
+Todos os erros seguem o formato `{ "error": { "code": "...", "message": "..." } }`.
 
 ### Editar o texto de uma mensagem: `PATCH /messages/:messageId`
 
@@ -146,6 +181,8 @@ Há também o banco `lia_messages_test`, usado apenas pelos testes automatizados
 
     docker compose exec db mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS lia_messages_test;"
 
+O schema é gerenciado pelo Prisma (`prisma/schema.prisma`) e as migrations ficam versionadas em `prisma/migrations`. A tabela `messages` guarda `messageId`, `storeId`, `phone`, `text` e `timestamp`, além de `createdAt` e `updatedAt`.
+
 ## Testes
 
 Os testes são de integração: usam a aplicação Express em memória (Supertest) e um MySQL de verdade, no banco separado `lia_messages_test`, sem tocar nos dados de desenvolvimento.
@@ -160,6 +197,16 @@ As migrations são aplicadas no banco de teste automaticamente antes da execuç�
 
 ## Decisões
 
+- **Express + TypeScript**: simples e conhecido; o foco do teste é a API.
+- **MySQL em Docker Compose**: qualquer pessoa sobe o banco com um comando, sem instalar nada.
+- **Prisma 7**: schema tipado e migrations versionadas no repositório.
+- **`messageId` como chave primária**: o ID do WhatsApp é único, então reenvios do mesmo evento não geram duplicatas.
+- **Índice em `(phone, timestamp)`**: consulta rápida das mensagens de um cliente em ordem cronológica.
+- **Zod para validação**: o mesmo schema valida a entrada e gera o tipo TypeScript.
+- **Telefone só com dígitos (10 a 15)**: segue o formato do WhatsApp, com DDI e DDD, sem `+`.
+- **`409` em `messageId` repetido**: o WhatsApp reenvia eventos, e assim o reenvio não cria duplicata nem sobrescreve a mensagem.
+- **Formato único de erro**: `{ "error": { "code", "message" } }` em todas as rotas.
+- **Camadas simples (rota, serviço, banco)**: a rota só valida e responde, e as regras ficam no serviço.
 - **`phone` obrigatório na listagem**: a API lista as mensagens de um cliente. Listar tudo exporia dados de todos os clientes e cresceria sem limite.
 - **Paginação com `limit` e `offset`** (padrão 50, máximo 100): respostas de tamanho previsível, e o `total` diz ao cliente se há mais páginas.
 - **Ordem cronológica, da mais antiga para a mais nova**: é a ordem natural de uma conversa, com desempate pelo `messageId` para o resultado ser sempre o mesmo.
